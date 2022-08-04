@@ -1,14 +1,14 @@
-package com.example.servlet.web.frontcontroller.v3;
+package com.example.servlet.web.frontcontroller.v4;
 
 import com.example.servlet.web.frontcontroller.ModelView;
 import com.example.servlet.web.frontcontroller.MyView;
-import com.example.servlet.web.frontcontroller.v2.ControllerV2;
-import com.example.servlet.web.frontcontroller.v2.controller.MemberFromControllerV2;
-import com.example.servlet.web.frontcontroller.v2.controller.MemberListControllerV2;
-import com.example.servlet.web.frontcontroller.v2.controller.MemberSaveControllerV2;
+import com.example.servlet.web.frontcontroller.v3.ControllerV3;
 import com.example.servlet.web.frontcontroller.v3.controller.MemberFormControllerV3;
 import com.example.servlet.web.frontcontroller.v3.controller.MemberListControllerV3;
 import com.example.servlet.web.frontcontroller.v3.controller.MemberSaveControllerV3;
+import com.example.servlet.web.frontcontroller.v4.controller.MemberFormControllerV4;
+import com.example.servlet.web.frontcontroller.v4.controller.MemberListControllerV4;
+import com.example.servlet.web.frontcontroller.v4.controller.MemberSaveControllerV4;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,16 +19,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet(name="frontcontrollerServletv3" , urlPatterns = "/front-controller/v3/*")
-public class FrontControllerServletV3 extends HttpServlet {
+@WebServlet(name="frontcontrollerServletv4" , urlPatterns = "/front-controller/v4/*")
+public class FrontControllerServletV4 extends HttpServlet {
 
 
-    private Map<String , ControllerV3> controllerMap =new HashMap<>();
+    private Map<String , ControllerV4> controllerMap =new HashMap<>();
 
-    public FrontControllerServletV3() {
-        controllerMap.put("/front-controller/v3/members/new-form", new MemberFormControllerV3());
-        controllerMap.put("/front-controller/v3/members/save", new MemberSaveControllerV3());
-        controllerMap.put("/front-controller/v3/members", new MemberListControllerV3());
+    public FrontControllerServletV4() {
+        controllerMap.put("/front-controller/v4/members/new-form", new MemberFormControllerV4());
+        controllerMap.put("/front-controller/v4/members/save", new MemberSaveControllerV4());
+        controllerMap.put("/front-controller/v4/members", new MemberListControllerV4());
 
     }
 
@@ -38,7 +38,7 @@ public class FrontControllerServletV3 extends HttpServlet {
 
         String requestURI = req.getRequestURI();
 
-        ControllerV3 controller = controllerMap.get(requestURI);
+        ControllerV4 controller = controllerMap.get(requestURI);
         // 가령 list를 반환한다고 하면 ControllerV1 controller = new MemberListControllerV1()); 와 같은 구문이 된다.
         if (controller == null){
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -47,12 +47,13 @@ public class FrontControllerServletV3 extends HttpServlet {
 
 
         Map<String, String> paramMap = createParamMap(req);
-        ModelView modelview = controller.process(paramMap);
+        Map<String , Object> model = new HashMap<>();
+        String viewName = controller.process(paramMap,model);
 
-        String viewName = modelview.getViewName();// 논리이름 new-form
+
 
         MyView view = viewResolver(viewName);
-        view.render(modelview.getModel(), req,resp);
+        view.render(model, req,resp);
     }
 
     private MyView viewResolver(String viewName) {
